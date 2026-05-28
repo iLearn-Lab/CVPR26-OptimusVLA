@@ -28,6 +28,8 @@
     <img src="https://img.shields.io/badge/Paper-arXiv-deepgreen" alt="Paper arXiv"></a>
     <a href="https://cybertronagent.github.io/OptimusVLA.github.io/" target="_blank">
     <img src="https://img.shields.io/badge/Project-OptimusVLA-9cf" alt="Project Page"></a>
+    <a href="https://huggingface.co/iLearn-Lab/OptimusVLA_Memory" target="_blank">
+    <img src="https://img.shields.io/badge/Hugging%20Face-Model-yellow" alt="Hugging Face Model"</a>
 </div>
 </div>
 
