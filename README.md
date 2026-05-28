@@ -46,7 +46,7 @@ Overview of OptimusVLA framework. Given a task and the current observation, the 
 <img src="./assets/fig1.png" >
 
 ## :rocket: How to Run
-**OptimusVLA is built on the [openpi](https://github.com/Physical-Intelligence/openpi) framework. Therefore, please first download and configure the openpi environment, and then download the PI05 model weights**.
+**OptimusVLA is built on the [openpi](https://github.com/Physical-Intelligence/openpi) framework. Therefore, please first download and configure the openpi environment, and then download the pi_05 model weights**.
 
 ### Install openpi
 1. Clone the official OpenPI repository
@@ -198,19 +198,59 @@ By default, the script runs `libero_spatial`, `libero_object`, `libero_goal`,
 and `libero_10`. Logs are written to a timestamped directory under `logs/`,
 and the final summary is saved as `results.txt` in that directory. The summary
 contains the exit code, episode count, success count, and success rate for each
-suite. Common overrides:
+suite. 
 
-```bash
-cd "${OPENPI_ROOT}"
-POLICY_DIR=/path/to/pi05_libero_pytorch \
-SERVER_CUDA_VISIBLE_DEVICES=0 \
-CLIENT_CUDA_VISIBLE_DEVICES=0 \
-NUM_TRIALS_PER_TASK=50 \
-REPLAN_STEPS=10 \
-RESULTS_TXT=logs/libero_eval_results.txt \
-LCM_SCALE=0.10 \
-bash scripts/run_libero_eval.sh
-```
+Default model and server settings:
+
+| Parameter | Default | Meaning |
+| --- | --- | --- |
+| `POLICY_CONFIG` | `pi05_libero` | OpenPI policy config used for the base pi0.5 checkpoint. |
+| `POLICY_DIR` | Required | Local PyTorch pi0.5 checkpoint directory. This release does not include it. |
+| `ACTION_NORM_STATS_PATH` | `${POLICY_DIR}/assets/physical-intelligence/libero/norm_stats.json` | Action normalization stats used by GPM memory actions. |
+| `HOST` / `PORT` | `127.0.0.1` / `8000` | Client connection target and server port. |
+| `SERVER_CUDA_VISIBLE_DEVICES` | `${CUDA_VISIBLE_DEVICES}` or `0` | GPU used by the policy server. |
+| `CLIENT_CUDA_VISIBLE_DEVICES` | `${CUDA_VISIBLE_DEVICES}` or `0` | GPU visible to the LIBERO clients. |
+| `OPENPI_TORCH_COMPILE` | `0` | Disables Torch compile by default for easier first-run debugging. |
+
+Default GPM settings:
+
+| Parameter | Default | Meaning |
+| --- | --- | --- |
+| GPM memory | Enabled | The helper always passes `--use-memory`. |
+| GPM assets | `checkpoints/gpm_task_head.pt`, `memory/gpm_memory_meta.pt`, `memory/gpm_memory.index`, `memory/gpm_memory_actions.npz` | Default task head, metadata, FAISS index, and packed action memory paths. |
+| `--action-use-quantile-norm` | Enabled | Uses LIBERO action quantile statistics for memory action normalization. |
+| `MEMORY_TOP_K` | `8` | Number of retrieved memory candidates per query. |
+| `MEMORY_REFRESH_EVERY` | `1` | Refreshes memory retrieval every replan request. |
+| `ALIGN_MODE` | `hybrid` | Time alignment mode for the retrieved memory trajectory. |
+| `MIXTURE_MODE` | `gaussian` | Builds a Gaussian action prior from retrieved memories. |
+| `TEMPERATURE` | `10.0` | Softmax temperature used when weighting retrieved memories. |
+| `SIGMA_MIN` | `0.05` | Lower bound for the Gaussian prior standard deviation. |
+| `NOISE_MIN` / `NOISE_MAX` | `0.20` / `1.00` | Noise schedule range used by the memory-guided sampler. |
+| `NFE_MIN` / `NFE_MAX` | `1` / `10` | Sampling step range selected from memory confidence. |
+
+Default LCM settings:
+
+| Parameter | Default | Meaning |
+| --- | --- | --- |
+| `USE_LCM` | `1` | Enables LCM refinement after GPM. Set `USE_LCM=0` for GPM-only inference. |
+| `LCM_SCALE` | `0.10` | Strength of the LCM correction applied to the action chunk. |
+| LCM checkpoint | `checkpoints/lcm.pt` | Default LCM checkpoint path. |
+| LCM architecture fallback | hidden `256`, layers `1`, heads `4`, dropout `0.0`, `mamba_impl=auto` | Used only when these fields are absent from checkpoint metadata. |
+
+Default evaluation and logging settings:
+
+| Parameter | Default | Meaning |
+| --- | --- | --- |
+| Suites | `libero_spatial`, `libero_object`, `libero_goal`, `libero_10` | Four standard LIBERO suites run in parallel. |
+| `NUM_TRIALS_PER_TASK` | `50` | Episodes evaluated per task. |
+| `REPLAN_STEPS` | `10` | Number of actions executed before requesting a new chunk. |
+| `NUM_STEPS_WAIT` | `10` | Initial dummy steps before policy control begins. |
+| `SEED` | `7` | LIBERO environment seed. |
+| `RESIZE_SIZE` | `224` | Image size sent to the policy client. |
+| `MUJOCO_GL` | `egl` | Headless MuJoCo rendering backend. |
+| `LOG_DIR` | `logs/libero_eval_<timestamp>` | Directory for server logs, client stdout logs, JSONL records, and `results.txt`. |
+| `RESULTS_TXT` | `${LOG_DIR}/results.txt` | Final text summary with per-suite and overall success rates. |
+
 
 ## :smile_cat: Evaluation results on Real World
 We evaluate OptimusVLA on Generalization Tasks and Long-horizon Tasks via GALAXEA R1 Lite robot.
