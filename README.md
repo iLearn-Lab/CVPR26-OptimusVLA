@@ -45,6 +45,173 @@
 Overview of OptimusVLA framework. Given a task and the current observation, the Vision–Language backbone first encodes the inputs into a multimodal representation. GPM then retrieves a task-level prior based on this representation, while LBM dynamically encodes the historical action sequence to produce a consistency constraint. Finally, the flow policy denoises the initialization with an adaptive NFEs schedule to generate the action chunk.
 <img src="./assets/fig1.png" >
 
+## :rocket: How to Run
+**OptimusVLA is built on the [openpi](https://github.com/Physical-Intelligence/openpi) framework. Therefore, please first download and configure the openpi environment, and then download the PI05 model weights**.
+
+### Install openpi
+1. Clone the official OpenPI repository
+
+```bash
+git clone --recurse-submodules git@github.com:Physical-Intelligence/openpi.git
+cd openpi
+git submodule update --init --recursive
+```
+
+2. Create the main OpenPI environment:
+
+```bash
+GIT_LFS_SKIP_SMUDGE=1 uv sync
+GIT_LFS_SKIP_SMUDGE=1 uv pip install -e .
+```
+
+3. PyTorch Support
+   
+```bash
+cp -r ./src/openpi/models_pytorch/transformers_replace/* .venv/lib/python3.11/site-packages/transformers/
+```
+
+4. Download pi05_libero model checkpoints and convert it to pytorch version
+
+OptimusVLA does not release the pi0.5 policy checkpoint. Prepare a PyTorch
+`pi05_libero` checkpoint yourself. The policy directory must contain:
+
+```text
+model.safetensors
+assets/physical-intelligence/libero/norm_stats.json
+```
+
+If you start from a JAX OpenPI checkpoint, convert it with the upstream OpenPI
+converter:
+
+```bash
+cd "${OPENPI_ROOT}"
+uv run examples/convert_jax_model_to_pytorch.py \
+  --checkpoint-dir /path/to/pi05_libero_jax_checkpoint \
+  --config-name pi05_libero \
+  --output-path /path/to/pi05_libero_pytorch
+```
+
+Set the policy path:
+
+```bash
+export POLICY_DIR=/path/to/pi05_libero_pytorch
+```
+
+5. Install the extra OptimusVLA inference dependency:
+
+```bash
+uv pip install faiss-cpu
+uv pip install mamba-ssm
+```
+
+6. Create the LIBERO Client Environment
+Create the LIBERO example environment using the official OpenPI instructions:
+
+```bash
+cd "${OPENPI_ROOT}"
+uv venv --python 3.8 examples/libero/.venv
+source examples/libero/.venv/bin/activate
+uv pip sync examples/libero/requirements.txt third_party/libero/requirements.txt \
+  --extra-index-url https://download.pytorch.org/whl/cu113 \
+  --index-strategy=unsafe-best-match
+uv pip install -e packages/openpi-client
+uv pip install -e third_party/libero
+deactivate
+```
+
+Use this environment only for the LIBERO client in
+`examples/libero/main.py`. Run the policy server from the OpenPI server
+environment created in step 2.
+
+### Apply the OptimusVLA Code
+Assume this package was cloned or extracted at `/path/to/optimusvla-release`.
+Copy its contents into the OpenPI checkout:
+
+```bash
+export OPENPI_ROOT=/path/to/openpi
+rsync -av \
+  --exclude README.md \
+  --exclude checkpoints \
+  --exclude memory \
+  /path/to/optimusvla-release/code/ "${OPENPI_ROOT}/"
+```
+
+### Download OptimusVLA Assets
+Download the asset directories from the Hugging Face repository that hosts this
+release. They must end up under the OpenPI root exactly as follows:
+
+```text
+${OPENPI_ROOT}/checkpoints/gpm_task_head.pt
+${OPENPI_ROOT}/checkpoints/lcm.pt
+${OPENPI_ROOT}/memory/gpm_memory_meta.pt
+${OPENPI_ROOT}/memory/gpm_memory.index
+${OPENPI_ROOT}/memory/gpm_memory_actions.npz
+```
+
+## Start the Policy Server Manually
+With the default asset paths above, only the pi0.5 policy path and norm stats
+path need to be provided explicitly:
+
+```bash
+cd "${OPENPI_ROOT}"
+export OPENPI_TORCH_COMPILE=0
+CUDA_VISIBLE_DEVICES=0 uv run scripts/serve_policy.py \
+  --env LIBERO \
+  --port 8000 \
+  --use-memory \
+  --action-norm-stats-path "${POLICY_DIR}/assets/physical-intelligence/libero/norm_stats.json" \
+  --action-use-quantile-norm \
+  --memory-top-k 8 \
+  --memory-refresh-every 1 \
+  --align-mode hybrid \
+  --mixture-mode gaussian \
+  --temperature 10.0 \
+  --sigma-min 0.05 \
+  --noise-min 0.20 \
+  --noise-max 1.00 \
+  --nfe-min 1 \
+  --nfe-max 10 \
+  --use-lcm \
+  --lcm-scale 0.10 \
+  policy:checkpoint \
+  --policy.config pi05_libero \
+  --policy.dir "${POLICY_DIR}"
+```
+
+The command above uses these defaults:
+
+```text
+--task-head-ckpt checkpoints/gpm_task_head.pt
+--lcm-ckpt checkpoints/lcm.pt
+--memory-meta-path memory/gpm_memory_meta.pt
+--faiss-index-path memory/gpm_memory.index
+--memory-actions-path memory/gpm_memory_actions.npz
+```
+
+### Run LIBERO Evaluation
+
+```bash
+cd "${OPENPI_ROOT}"
+POLICY_DIR=/path/to/pi05_libero_pytorch bash scripts/run_libero_eval.sh
+```
+By default, the script runs `libero_spatial`, `libero_object`, `libero_goal`,
+and `libero_10`. Logs are written to a timestamped directory under `logs/`,
+and the final summary is saved as `results.txt` in that directory. The summary
+contains the exit code, episode count, success count, and success rate for each
+suite. Common overrides:
+
+```bash
+cd "${OPENPI_ROOT}"
+POLICY_DIR=/path/to/pi05_libero_pytorch \
+SERVER_CUDA_VISIBLE_DEVICES=0 \
+CLIENT_CUDA_VISIBLE_DEVICES=0 \
+NUM_TRIALS_PER_TASK=50 \
+REPLAN_STEPS=10 \
+RESULTS_TXT=logs/libero_eval_results.txt \
+LCM_SCALE=0.10 \
+bash scripts/run_libero_eval.sh
+```
+
 ## :smile_cat: Evaluation results on Real World
 We evaluate OptimusVLA on Generalization Tasks and Long-horizon Tasks via GALAXEA R1 Lite robot.
 <img src="./assets/fig2.png" >
