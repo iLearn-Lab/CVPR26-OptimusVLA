@@ -34,6 +34,7 @@
 
 
 ## :new: Updates
+- [05/2026] :fire: We release the [Inference Code](https://github.com/iLearn-Lab/CVPR26-OptimusVLA) and [Checkpoints](https://huggingface.co/iLearn-Lab/OptimusVLA_Memory) on LIBERO.
 - [02/2026] :fire: OptimusVLA is accepted to **CVPR 2026**!
 - [02/2026] :fire: [Project page](https://cybertronagent.github.io/OptimusVLA.github.io/) released.
 - [02/2026] :fire: [Arxiv paper](https://arxiv.org/abs/2602.20200) released.
