@@ -1,0 +1,5 @@
+/README.md
+/checkpoints/
+/memory/
+__pycache__/
+*.py[cod]
