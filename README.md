@@ -139,8 +139,7 @@ This step only copies the source overlay. Download `checkpoints/` and `memory/`
 separately from the Hugging Face asset repository in the next step.
 
 ### Download OptimusVLA Assets
-Download the asset directories from the Hugging Face repository that hosts this
-release. They must end up under the OpenPI root exactly as follows:
+Download the asset directories from the [OptimusVLA_Memory](https://huggingface.co/iLearn-Lab/OptimusVLA_Memory). They must end up under the OpenPI root exactly as follows:
 
 ```text
 ${OPENPI_ROOT}/checkpoints/gpm_task_head.pt
@@ -253,6 +252,29 @@ Default evaluation and logging settings:
 | `LOG_DIR` | `logs/libero_eval_<timestamp>` | Directory for server logs, client stdout logs, JSONL records, and `results.txt`. |
 | `RESULTS_TXT` | `${LOG_DIR}/results.txt` | Final text summary with per-suite and overall success rates. |
 
+### Experimental Results Note
+Our repeated experiments show that performance on LIBERO is affected by the GPU and randomness. Below, we provide the experimental results obtained on L40 and A800 GPUs using the default parameter settings for reference.
+
+| Method | Spatial | Object | Goal | Long | Average |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| pi05 | 98.8 | 98.2 | 98.0 | 92.4 | 96.9 |
+| L40 | 99.4 | 99.2 | 98.8 | 95.6 | 98.3 |
+|  | 98.6 | 99.8 | 97.8 | 94.6 | 97.7 |
+|  | 97.8 | 99.6 | 98.6 | 92.8 | 97.2 |
+|  | 98.4 | 99.0 | 98.0 | 95.2 | 97.7 |
+|  | 98.6 | 99.4 | 98.0 | 94.6 | 97.7 |
+|  | 98.8 | 98.8 | 97.2 | 95.2 | 97.5 |
+|  | 98.4 | 99.8 | 97.4 | 94.0 | 97.4 |
+|  | 98.4 | 99.4 | 97.6 | 95.0 | 97.6 |
+| A800 | 97.6 | 99.4 | 96.8 | 95.6 | 97.4 |
+|  | 97.8 | 99.4 | 98.2 | 95.2 | 97.7 |
+|  | 99.6 | 99.2 | 99.0 | 94.4 | 98.1 |
+|  | 98.4 | 99.6 | 97.8 | 94.8 | 97.7 |
+|  | 99.0 | 99.6 | 97.0 | 94.2 | 97.5 |
+|  | 99.2 | 99.2 | 97.4 | 94.0 | 97.5 |
+|  | 98.6 | 99.8 | 98.8 | 96.4 | 98.4 |
+|  | 99.2 | 99.2 | 98.4 | 94.0 | 97.7 |
+| Reported | 99.6 | 99.8 | 98.4 | 96.4 | 98.6 |
 
 ## :smile_cat: Evaluation results on Real World
 We evaluate OptimusVLA on Generalization Tasks and Long-horizon Tasks via GALAXEA R1 Lite robot.
