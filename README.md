@@ -124,17 +124,19 @@ Use this environment only for the LIBERO client in
 environment created in step 2.
 
 ### Apply the OptimusVLA Code
-Assume this package was cloned or extracted at `/path/to/optimusvla-release`.
-Copy its contents into the OpenPI checkout:
+Clone or download the GitHub repository that contains this `code/` folder, then
+copy the overlay files from `code/` into an already configured OpenPI checkout:
 
 ```bash
+git clone https://github.com/iLearn-Lab/CVPR26-OptimusVLA.git
+cd CVPR26-OptimusVLA
 export OPENPI_ROOT=/path/to/openpi
 rsync -av \
-  --exclude README.md \
-  --exclude checkpoints \
-  --exclude memory \
-  /path/to/optimusvla-release/code/ "${OPENPI_ROOT}/"
+  code/ "${OPENPI_ROOT}/"
 ```
+
+This step only copies the source overlay. Download `checkpoints/` and `memory/`
+separately from the Hugging Face asset repository in the next step.
 
 ### Download OptimusVLA Assets
 Download the asset directories from the Hugging Face repository that hosts this
