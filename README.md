@@ -108,6 +108,7 @@ uv pip install mamba-ssm
 ```
 
 6. Create the LIBERO Client Environment
+   
 Create the LIBERO example environment using the official OpenPI instructions:
 
 ```bash
@@ -152,45 +153,7 @@ ${OPENPI_ROOT}/memory/gpm_memory.index
 ${OPENPI_ROOT}/memory/gpm_memory_actions.npz
 ```
 
-## Start the Policy Server Manually
-With the default asset paths above, only the pi0.5 policy path and norm stats
-path need to be provided explicitly:
 
-```bash
-cd "${OPENPI_ROOT}"
-export OPENPI_TORCH_COMPILE=0
-CUDA_VISIBLE_DEVICES=0 uv run scripts/serve_policy.py \
-  --env LIBERO \
-  --port 8000 \
-  --use-memory \
-  --action-norm-stats-path "${POLICY_DIR}/assets/physical-intelligence/libero/norm_stats.json" \
-  --action-use-quantile-norm \
-  --memory-top-k 8 \
-  --memory-refresh-every 1 \
-  --align-mode hybrid \
-  --mixture-mode gaussian \
-  --temperature 10.0 \
-  --sigma-min 0.05 \
-  --noise-min 0.20 \
-  --noise-max 1.00 \
-  --nfe-min 1 \
-  --nfe-max 10 \
-  --use-lcm \
-  --lcm-scale 0.10 \
-  policy:checkpoint \
-  --policy.config pi05_libero \
-  --policy.dir "${POLICY_DIR}"
-```
-
-The command above uses these defaults:
-
-```text
---task-head-ckpt checkpoints/gpm_task_head.pt
---lcm-ckpt checkpoints/lcm.pt
---memory-meta-path memory/gpm_memory_meta.pt
---faiss-index-path memory/gpm_memory.index
---memory-actions-path memory/gpm_memory_actions.npz
-```
 
 ### Run LIBERO Evaluation
 
