@@ -57,7 +57,6 @@ Overview of OptimusVLA framework. Given a task and the current observation, the 
 ```bash
 git clone --recurse-submodules git@github.com:Physical-Intelligence/openpi.git
 cd openpi
-git submodule update --init --recursive
 ```
 
 2. Create the main OpenPI environment:
