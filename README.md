@@ -224,7 +224,7 @@ Our repeated experiments show that performance on LIBERO is affected by the GPU 
 | Method | Spatial | Object | Goal | Long | Average |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | pi_05 | 98.8 | 98.2 | 98.0 | 92.4 | 96.9 |
-| L40 | 99.4 | 99.2 | 98.8 | 95.6 | 98.3 |
+| OptimusVLA (L40) | 99.4 | 99.2 | 98.8 | 95.6 | 98.3 |
 |  | 98.6 | 99.8 | 97.8 | 94.6 | 97.7 |
 |  | 97.8 | 99.6 | 98.6 | 92.8 | 97.2 |
 |  | 98.4 | 99.0 | 98.0 | 95.2 | 97.7 |
@@ -232,7 +232,7 @@ Our repeated experiments show that performance on LIBERO is affected by the GPU 
 |  | 98.8 | 98.8 | 97.2 | 95.2 | 97.5 |
 |  | 98.4 | 99.8 | 97.4 | 94.0 | 97.4 |
 |  | 98.4 | 99.4 | 97.6 | 95.0 | 97.6 |
-| A800 | 97.6 | 99.4 | 96.8 | 95.6 | 97.4 |
+| OptimusVLA (A800) | 97.6 | 99.4 | 96.8 | 95.6 | 97.4 |
 |  | 97.8 | 99.4 | 98.2 | 95.2 | 97.7 |
 |  | 99.6 | 99.2 | 99.0 | 94.4 | 98.1 |
 |  | 98.4 | 99.6 | 97.8 | 94.8 | 97.7 |
@@ -240,7 +240,7 @@ Our repeated experiments show that performance on LIBERO is affected by the GPU 
 |  | 99.2 | 99.2 | 97.4 | 94.0 | 97.5 |
 |  | 98.6 | 99.8 | 98.8 | 96.4 | 98.4 |
 |  | 99.2 | 99.2 | 98.4 | 94.0 | 97.7 |
-| Reported in Paper| 99.6 | 99.8 | 98.4 | 96.4 | 98.6 |
+| OptimusVLA (Paper)| 99.6 | 99.8 | 98.4 | 96.4 | 98.6 |
 
 ## :smile_cat: Evaluation results on Real World
 We evaluate OptimusVLA on Generalization Tasks and Long-horizon Tasks via GALAXEA R1 Lite robot.
